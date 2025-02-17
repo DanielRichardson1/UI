@@ -23,9 +23,8 @@ class GraphWidget(QtWidgets.QWidget):
         self.timer.start()
 
     def update_plot_data(self):
-        self.x = self.x[1:]  # Remove the first x element
-        self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last
-
-        self.y = self.y[1:]  # Remove the first
-        self.y.append(np.random.normal())  # Add new random value
         self.data_line.setData(self.x, self.y)  # Update the plot.
+    
+    def add_data(self, value):
+        self.y = self.y[1:]  # Remove the first
+        self.y.append(value)  # Add new value
