@@ -35,6 +35,10 @@ def on_message(client, userdata, msg):
 # GUI
 app = QtWidgets.QApplication([])
 
+# Load and apply stylesheet
+with open("styles.qss", "r") as stylesheet:
+    app.setStyleSheet(stylesheet.read()) 
+
 # Create the MainWindow instance first
 window = MainWindow(None)  # Temporarily pass None for the mqtt_client
 window.show()
