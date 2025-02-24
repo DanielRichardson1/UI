@@ -43,8 +43,11 @@ window.show()
 client = mqtt.Client(client_id="gui", userdata=window.graphWidget)
 client.on_subscribe = on_subscribe
 client.on_message = on_message  
-client.connect("172.20.10.6", 1883)
+# Pi: my hotspot: 172.20.10.6
+# Computer: 192.168.56.1
+client.connect("192.168.56.1", 1883)
 client.subscribe("sensor", qos=1)
+client.subscribe("class_output", qos=1)
 
 # Now update the MainWindow with the actual mqtt_client
 window.tabWidget.mqtt_client = client
