@@ -56,10 +56,12 @@ class CalibrationWindow(QDialog):
         else:
             # Fallback if no parent or no mqtt_client in parent
             self.mqtt_client = mqtt.Client(client_id="calibration_window")
-            self.mqtt_client.connect("192.168.56.1", 1883)
+            self.mqtt_client.connect("localhost", 1883)
         
         # Initialize current_prompt to track state changes
         self.current_prompt = "rest"
+        self.mqtt_client.publish("training_prompt", "rest") # Publish initatil rest state
+
         
         self.set_layout(layout)
         self.start_process()

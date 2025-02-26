@@ -4,7 +4,9 @@ from PyQt5.QtGui import QPixmap, QFont
 import sys
 from graph_widget import GraphWidget
 import paho.mqtt.client as mqtt
+
 from CalibrationWindow import CalibrationWindow
+from EvaluationWindow import EvaluationWindow
 
 
 class TabWidget(QWidget):
@@ -105,16 +107,18 @@ class TabWidget(QWidget):
         # Apply layout
         self.tab3.setLayout(self.tab3.layout)
 
-        
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
         
     def publish_calibrate(self):
-        self.mqtt_client.publish("state", "calibrate")
+        self.mqtt_client.publish("state", "start calibrate")
         
         self.calibration_window = CalibrationWindow(self)
         self.calibration_window.exec_()  # Show the calibration window as a modal dialog
 
     def publish_evaluate(self):
-        self.mqtt_client.publish("state", "evaluate")
+        self.mqtt_client.publish("state", "start evaluate")
+        
+        self.evaluation_window = EvaluationWindow(self)
+        self.evaluation_window.exec_()
