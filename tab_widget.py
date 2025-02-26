@@ -75,7 +75,7 @@ class TabWidget(QWidget):
         # Apply layout
         self.tab2.setLayout(self.tab2.layout)
 
-                #
+        #
         # Evaluate Model tab ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #
         
