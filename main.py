@@ -1,8 +1,11 @@
 import pyqtgraph as pg
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
 import numpy as np
 import paho.mqtt.client as mqtt
 import threading
+import sys
+import qdarkgraystyle
 
 from graph_widget import GraphWidget 
 from tab_widget import TabWidget
@@ -13,10 +16,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Prosthetic Hand Grasping Classification")
         self.tabWidget = TabWidget(self, mqtt_client)
         self.graphWidget = self.tabWidget.graph1  # Reference to the first graph
+        self.mqtt_client = mqtt_client  # Store reference to MQTT client
         self.setCentralWidget(self.tabWidget)
+
+    def closeEvent(self, event):
+        """Handles window closing, ensuring the script exits cleanly."""
+        if self.mqtt_client:
+            self.mqtt_client.loop_stop()  # Stop MQTT loop
+            self.mqtt_client.disconnect()  # Disconnect MQTT client
+        print("Application closing...")
+        event.accept()
+        sys.exit(0)  # Ensure script fully exits
+
 
 def on_subscribe(client, userdata, mid, granted_qos):
     print("Subscribed: " + str(mid) + " " + str(granted_qos))
+
 
 def on_message(client, userdata, msg):
     if msg.topic == "sensor":
@@ -33,32 +48,38 @@ def on_message(client, userdata, msg):
 #
 
 # GUI
-app = QtWidgets.QApplication([])
+app = QtWidgets.QApplication([sys.argv])
 
 # Load and apply stylesheet
-with open("styles.qss", "r") as stylesheet:
-    app.setStyleSheet(stylesheet.read()) 
+# with open("styles.qss", "r") as stylesheet:
+#     app.setStyleSheet(stylesheet.read()) 
 
-# Create the MainWindow instance first
-window = MainWindow(None)  # Temporarily pass None for the mqtt_client
-window.show()
-
-# SERVER CLIENT
-client = mqtt.Client(client_id="gui", userdata=window.graphWidget)
+# Create the MQTT client first
+client = mqtt.Client(client_id="gui")
 client.on_subscribe = on_subscribe
 client.on_message = on_message  
-# Pi: my hotspot: 172.20.10.6
-# Computer: 192.168.56.1
 client.connect("192.168.56.1", 1883)
 client.subscribe("sensor", qos=1)
 client.subscribe("class_output", qos=1)
 
-# Now update the MainWindow with the actual mqtt_client
-window.tabWidget.mqtt_client = client
+# Create the MainWindow instance with the actual MQTT client
+window = MainWindow(client)
+
+# setup stylesheet
+app.setStyleSheet(qdarkgraystyle.load_stylesheet())
+icon = QIcon('./images/mechanical-arm.png')
+app.setWindowIcon(icon)
+window.show()
 
 # Start the MQTT client in a separate thread
-mqtt_thread = threading.Thread(target=client.loop_forever)
+mqtt_thread = threading.Thread(target=client.loop_forever, daemon=True)
 mqtt_thread.start()
 
-# Start the GUI in a separate thread
+# Start the GUI
+QtWidgets.QApplication.instance().setWindowIcon(icon) 
 app.exec_()
+
+# Ensure cleanup after GUI closes
+client.loop_stop()
+client.disconnect()
+sys.exit(0)

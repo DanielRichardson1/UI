@@ -1,5 +1,0 @@
-QLabel {
-    font-size: 20px;
-    font-weight: bold;
-    qproperty-alignment: 'AlignCenter';
-}
