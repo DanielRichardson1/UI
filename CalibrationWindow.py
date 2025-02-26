@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget, QVBoxLayout, QLabel, QDialog
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtGui import QPixmap, QFont
 import sys
 from graph_widget import GraphWidget
 import paho.mqtt.client as mqtt
@@ -13,17 +13,22 @@ class CalibrationWindow(QDialog):
         self.setWindowTitle("Calibration")
         
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignCenter)
         
         self.label = QLabel("")
+        self.label.setFont(QFont("Arial", 18, QFont.Bold))
         layout.addWidget(self.label)
         
         self.image_label = QLabel(self)
+        self.image_label.setFont(QFont("Arial", 18, QFont.Bold))
         layout.addWidget(self.image_label)
         
         self.timer_label = QLabel("")
+        self.timer_label.setFont(QFont("Arial", 18, QFont.Bold))
         layout.addWidget(self.timer_label)
         
-        self.rep_label = QLabel("")  # New label for rep count
+        self.rep_label = QLabel("") 
+        self.rep_label.setFont(QFont("Arial", 18, QFont.Bold))
         layout.addWidget(self.rep_label)
 
         self.timer = QTimer(self)
@@ -45,6 +50,17 @@ class CalibrationWindow(QDialog):
         
         self.current_step = 0
         
+        # Get MQTT client from parent
+        if parent and hasattr(parent, 'mqtt_client'):
+            self.mqtt_client = parent.mqtt_client
+        else:
+            # Fallback if no parent or no mqtt_client in parent
+            self.mqtt_client = mqtt.Client(client_id="calibration_window")
+            self.mqtt_client.connect("192.168.56.1", 1883)
+        
+        # Initialize current_prompt to track state changes
+        self.current_prompt = "rest"
+        
         self.set_layout(layout)
         self.start_process()
 
@@ -55,6 +71,8 @@ class CalibrationWindow(QDialog):
         self.current_step = 0
         self.time_left = self.steps[self.current_step][2]
         self.update_step()
+        # Publish initial rest state
+        self.publish_training_prompt("rest")
 
     def update_step(self):
         step = self.steps[self.current_step]
@@ -65,6 +83,21 @@ class CalibrationWindow(QDialog):
         
         if self.current_step != 0:
             self.rep_label.setText(f"Repetition: {self.rep_count}/10")
+            
+        # Determine and publish the current training prompt based on step
+        if self.current_step == 0 or self.current_step == 1 or self.current_step == 3 or self.current_step == 4 or self.current_step == 6:
+            self.publish_training_prompt("rest")
+        elif self.current_step == 2:
+            self.publish_training_prompt("power sphere")
+        elif self.current_step == 5:
+            self.publish_training_prompt("large diameter")
+
+    def publish_training_prompt(self, prompt):
+        """Publish training prompt to MQTT if it has changed"""
+        if prompt != self.current_prompt:
+            self.current_prompt = prompt
+            print(f"Publishing training prompt: {prompt}")
+            self.mqtt_client.publish("training_prompt", prompt)
 
     def update_timer(self):
         self.time_left -= 1
@@ -100,5 +133,6 @@ class CalibrationWindow(QDialog):
                 self.time_left = self.steps[self.current_step][2]
                 self.update_step()
             else:
+                self.publish_training_prompt("rest")  # Publish final rest state
                 self.close()
                 self.mqtt_client.publish("state", "calibration_complete")

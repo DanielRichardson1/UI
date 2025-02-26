@@ -58,7 +58,7 @@ app = QtWidgets.QApplication([sys.argv])
 client = mqtt.Client(client_id="gui")
 client.on_subscribe = on_subscribe
 client.on_message = on_message  
-client.connect("192.168.56.1", 1883)
+client.connect("localhost", 1883)
 client.subscribe("sensor", qos=1)
 client.subscribe("class_output", qos=1)
 
