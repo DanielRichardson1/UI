@@ -30,6 +30,11 @@ class CalibrationWindow(QDialog):
         self.rep_label = QLabel("") 
         self.rep_label.setFont(QFont("Arial", 18, QFont.Bold))
         layout.addWidget(self.rep_label)
+        
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.setFont(QFont("Arial", 14, QFont.Bold))
+        self.cancel_button.clicked.connect(self.cancel_calibration)
+        layout.addWidget(self.cancel_button)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
@@ -39,7 +44,7 @@ class CalibrationWindow(QDialog):
         self.state = "rest"
         
         self.steps = [
-            ("Rest for 20 seconds", "./images/rest.png", 20), # 0
+            ("Rest for 20 seconds", "./images/rest.png", 19), # 0
             ("Prepare for Power Sphere Grasp", "./images/rest.png", 2), # 1
             ("Power Sphere Grasp", "./images/power_sphere.png", 2), # 2
             ("Relax your hand", "./images/rest.png", 2), # 3
@@ -69,6 +74,14 @@ class CalibrationWindow(QDialog):
     def set_layout(self, layout):
         self.setLayout(layout)
     
+    def cancel_calibration(self):
+        # Publish cancel message
+        self.mqtt_client.publish("training_prompt", "cancel")
+        # Stop the timer
+        self.timer.stop()
+        # Close the window
+        self.close()
+    
     def start_process(self):
         self.current_step = 0
         self.time_left = self.steps[self.current_step][2]
@@ -80,7 +93,7 @@ class CalibrationWindow(QDialog):
         step = self.steps[self.current_step]
         self.label.setText(step[0])
         self.image_label.setPixmap(QPixmap(step[1]))
-        self.timer_label.setText(f"Time Remaining: {self.time_left}")
+        self.timer_label.setText(f"Time Remaining: {self.time_left + 1}")
         self.timer.start(1000)
         
         if self.current_step != 0:
@@ -104,7 +117,7 @@ class CalibrationWindow(QDialog):
     def update_timer(self):
         self.time_left -= 1
         if self.time_left >= 0:
-            self.timer_label.setText(f"Time Remaining: {self.time_left}")
+            self.timer_label.setText(f"Time Remaining: {self.time_left + 1}")
         else:
             self.timer.stop()
 
