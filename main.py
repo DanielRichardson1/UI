@@ -15,7 +15,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowTitle("Prosthetic Hand Grasping Classification")
         self.tabWidget = TabWidget(self, mqtt_client)
-        self.graphWidget = self.tabWidget.graph1  # Reference to the first graph
+        self.graphWidget1 = self.tabWidget.graph1  # Reference to the first graph
+        self.graphWidget2 = self.tabWidget.graph2  # Reference to the second graph
         self.mqtt_client = mqtt_client  # Store reference to MQTT client
         self.setCentralWidget(self.tabWidget)
 
@@ -37,7 +38,9 @@ def on_message(client, userdata, msg):
     if msg.topic == "sensor":
         try:
             value = float(msg.payload.decode())
-            userdata.add_data(value)
+            # Update both graphs with the same sensor data
+            userdata["graph1"].add_data(value)
+            userdata["graph2"].add_data(value)
             print("Received sensor: " + str(value))
         except ValueError:
             pass  # case where the payload is not float
@@ -70,6 +73,15 @@ client.subscribe("class_output", qos=1)
 
 # Create the MainWindow instance with the actual MQTT client
 window = MainWindow(client)
+
+# Create a dictionary to hold references to both graphs for passing to the MQTT client
+graph_references = {
+    "graph1": window.graphWidget1,
+    "graph2": window.graphWidget2
+}
+
+# Update the userdata with the graph references
+client.user_data_set(graph_references)
 
 # setup stylesheet
 app.setStyleSheet(qdarkgraystyle.load_stylesheet())
