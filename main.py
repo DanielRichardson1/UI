@@ -38,9 +38,15 @@ def on_message(client, userdata, msg):
         try:
             value = float(msg.payload.decode())
             userdata.add_data(value)
-            print("Received message: " + str(value))
+            print("Received sensor: " + str(value))
         except ValueError:
             pass  # case where the payload is not float
+    if msg.topic == "class_output":
+        try:
+            classification = msg.payload.decode().strip()
+            print(f"Received classification: {classification}")
+        except Exception as e:
+            print(f"Error processing classification message: {e}")
 
 
 #
@@ -58,7 +64,7 @@ app = QtWidgets.QApplication([sys.argv])
 client = mqtt.Client(client_id="gui")
 client.on_subscribe = on_subscribe
 client.on_message = on_message  
-client.connect("localhost", 1883)
+client.connect("172.20.10.6", 1883) 
 client.subscribe("sensor", qos=1)
 client.subscribe("class_output", qos=1)
 

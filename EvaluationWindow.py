@@ -104,9 +104,9 @@ class EvaluationWindow(QDialog):
     def update_display(self, classification):
         """Update the display based on the received classification"""
         # Normalize classification string
-        if classification == "power_sphere" or classification == "power sphere":
+        if classification == "power_sphere" or classification == "power sphere" or "1":
             display_class = "power sphere"
-        elif classification == "large_diameter" or classification == "large diameter":
+        elif classification == "large_diameter" or classification == "large diameter" or "2":
             display_class = "large diameter"
         else:
             display_class = "rest"
