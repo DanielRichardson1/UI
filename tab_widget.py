@@ -112,13 +112,13 @@ class TabWidget(QWidget):
         self.setLayout(self.layout)
         
     def publish_calibrate(self):
-        self.mqtt_client.publish("state", "start calibrate")
+        self.mqtt_client.publish("state", "calibration start")
         
         self.calibration_window = CalibrationWindow(self)
         self.calibration_window.exec_()  # Show the calibration window as a modal dialog
 
     def publish_evaluate(self):
-        self.mqtt_client.publish("state", "start evaluate")
+        self.mqtt_client.publish("state", "evaluation start")
         
         self.evaluation_window = EvaluationWindow(self)
         self.evaluation_window.exec_()

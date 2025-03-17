@@ -145,5 +145,5 @@ class EvaluationWindow(QDialog):
             self.mqtt_client.on_message = self.original_on_message
         
         # Publish state change
-        self.mqtt_client.publish("state", "evaluation_complete")
+        self.mqtt_client.publish("state", "evaluation end")
         event.accept()

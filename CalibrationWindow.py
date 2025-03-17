@@ -150,4 +150,4 @@ class CalibrationWindow(QDialog):
             else:
                 self.publish_training_prompt("rest")  # Publish final rest state
                 self.close()
-                self.mqtt_client.publish("state", "calibration_complete")
+                self.mqtt_client.publish("state", "calibration end")
