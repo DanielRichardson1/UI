@@ -104,9 +104,11 @@ class EvaluationWindow(QDialog):
     def update_display(self, classification):
         """Update the display based on the received classification"""
         # Normalize classification string
-        if classification == "power_sphere" or classification == "power sphere" or "1":
+        classification = str(classification).lower().strip()
+        
+        if classification in ["power_sphere", "power sphere", "1"]:
             display_class = "power sphere"
-        elif classification == "large_diameter" or classification == "large diameter" or "2":
+        elif classification in ["large_diameter", "large diameter", "2"]:
             display_class = "large diameter"
         else:
             display_class = "rest"
@@ -114,8 +116,11 @@ class EvaluationWindow(QDialog):
         # Update the image
         if display_class in self.image_paths:
             pixmap = QPixmap(self.image_paths[display_class])
-            self.image_label.setPixmap(pixmap)
-            self.image_label.setScaledContents(False)
+            if not pixmap.isNull():
+                self.image_label.setPixmap(pixmap)
+                self.image_label.setScaledContents(True)
+            else:
+                print(f"Failed to load image: {self.image_paths[display_class]}")
         
         # Update labels
         self.classification_label.setText(f"Current Classification: {display_class.title()}")
