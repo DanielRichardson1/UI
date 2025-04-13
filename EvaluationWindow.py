@@ -117,8 +117,9 @@ class EvaluationWindow(QDialog):
         if display_class in self.image_paths:
             pixmap = QPixmap(self.image_paths[display_class])
             if not pixmap.isNull():
-                self.image_label.setPixmap(pixmap)
-                self.image_label.setScaledContents(True)
+                # Scale down while maintaining aspect ratio (max width/height of 250px)
+                scaled_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.image_label.setPixmap(scaled_pixmap)
             else:
                 print(f"Failed to load image: {self.image_paths[display_class]}")
         

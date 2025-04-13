@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, QtCore
 import numpy as np
 
 class GraphWidget(QtWidgets.QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, color=(255, 0, 0), width=2, *args, **kwargs):
         super(GraphWidget, self).__init__(*args, **kwargs)
 
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -14,7 +14,7 @@ class GraphWidget(QtWidgets.QWidget):
         self.y = [0] * 100      # 100 data points
         self.graphWidget.setBackground('w')
 
-        pen = pg.mkPen(color=(255, 0, 0))
+        pen = pg.mkPen(color=color, width=width)
         self.data_line = self.graphWidget.plot(self.x, self.y, pen=pen)
 
         self.timer = QtCore.QTimer()

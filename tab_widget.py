@@ -33,8 +33,8 @@ class TabWidget(QWidget):
         #
         
         self.tab1.layout = QVBoxLayout(self)
-        self.graph1 = GraphWidget()
-        self.graph2 = GraphWidget()
+        self.graph1 = GraphWidget(color=(255, 0, 0), width=3)  # Red graph with thicker line
+        self.graph2 = GraphWidget(color=(0, 0, 255), width=3)  # Blue graph with thicker line
         self.tab1.layout.addWidget(self.graph1)
         self.tab1.layout.addWidget(self.graph2)
         self.tab1.setLayout(self.tab1.layout)

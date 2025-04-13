@@ -37,13 +37,26 @@ def on_subscribe(client, userdata, mid, granted_qos):
 def on_message(client, userdata, msg):
     if msg.topic == "sensor":
         try:
-            value = float(msg.payload.decode())
-            # Update both graphs with the same sensor data
-            userdata["graph1"].add_data(value)
-            userdata["graph2"].add_data(value)
-            print("Received sensor: " + str(value))
-        except ValueError:
-            pass  # case where the payload is not float
+            payload = msg.payload.decode()
+            # Check if the payload matches the new format with comma-separated values
+            if ',' in payload:
+                values = payload.split(',')
+                if len(values) >= 2:
+                    value1 = float(values[0])
+                    value2 = float(values[1])
+                    # Update each graph with its respective value
+                    userdata["graph1"].add_data(value1)
+                    userdata["graph2"].add_data(value2)
+                    print(f"Received sensor: {value1}, {value2}")
+            else:
+                # Fallback for old format (single value)
+                value = float(payload)
+                userdata["graph1"].add_data(value)
+                userdata["graph2"].add_data(value)
+                print("Received sensor: " + str(value))
+        except ValueError as e:
+            print(f"Error processing sensor data: {e}")
+            
     if msg.topic == "class_output":
         try:
             classification = msg.payload.decode().strip()

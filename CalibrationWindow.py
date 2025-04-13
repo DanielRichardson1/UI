@@ -92,7 +92,16 @@ class CalibrationWindow(QDialog):
     def update_step(self):
         step = self.steps[self.current_step]
         self.label.setText(step[0])
-        self.image_label.setPixmap(QPixmap(step[1]))
+        
+        # Load image and scale it properly
+        pixmap = QPixmap(step[1])
+        if not pixmap.isNull():
+            # Scale down while maintaining aspect ratio (max width/height of 200px)
+            scaled_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.image_label.setPixmap(scaled_pixmap)
+        else:
+            print(f"Failed to load image: {step[1]}")
+            
         self.timer_label.setText(f"Time Remaining: {self.time_left + 1}")
         self.timer.start(1000)
         
